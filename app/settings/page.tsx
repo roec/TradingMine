@@ -1,22 +1,25 @@
 import { Card } from "@/components/ui";
 import { llmConfig } from "@/core/ai/llm";
+import { getCurrentLocale } from "@/lib/locale";
+import { t } from "@/lib/i18n";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const locale = await getCurrentLocale();
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card title="LLM Provider Settings">
+      <Card title={t(locale, "settingsLlmTitle")}>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li>Provider: {llmConfig.provider}</li>
-          <li>OpenAI Model: {llmConfig.openai.model}</li>
-          <li>DeepSeek Model: {llmConfig.deepseek.model}</li>
-          <li>Secrets are server-side via environment variables.</li>
+          <li>{t(locale, "provider")}: {llmConfig.provider}</li>
+          <li>{t(locale, "openaiModel")}: {llmConfig.openai.model}</li>
+          <li>{t(locale, "deepseekModel")}: {llmConfig.deepseek.model}</li>
+          <li>{t(locale, "settingsSecrets")}</li>
         </ul>
       </Card>
-      <Card title="Backtest Defaults">
+      <Card title={t(locale, "settingsBacktestTitle")}>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li>Fee: 5 bps</li>
-          <li>Slippage: 3 bps</li>
-          <li>Initial Capital: $100,000</li>
+          <li>{t(locale, "settingsFee")}: 5 bps</li>
+          <li>{t(locale, "settingsSlippage")}: 3 bps</li>
+          <li>{t(locale, "settingsInitialCapital")}: $100,000</li>
         </ul>
       </Card>
     </div>

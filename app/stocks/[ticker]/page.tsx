@@ -2,7 +2,7 @@ import { StockChart } from "@/components/stock-chart";
 import { Badge, Card } from "@/components/ui";
 import { buildLatestRow } from "@/lib/analytics";
 import { sampleCandles } from "@/lib/sampleData";
-import { t } from "@/lib/i18n";
+import { t, tf } from "@/lib/i18n";
 import { getCurrentLocale } from "@/lib/locale";
 
 type PageProps = {
@@ -36,16 +36,13 @@ export default async function StockDetailPage({ params }: PageProps) {
       </Card>
       <div className="grid gap-4 md:grid-cols-2">
         <Card title={t(locale, "stockAiExplanation")}>
-          <p className="text-sm text-slate-300">
-            Current setup indicates stage {row.stage} with a TopExitScore of {row.TopExitScore.toFixed(2)}. Focus on
-            invalidation if support breaks and volume expands without price progress.
-          </p>
+          <p className="text-sm text-slate-300">{tf(locale, "stockAiText", { stage: row.stage, score: row.TopExitScore.toFixed(2) })}</p>
         </Card>
         <Card title={t(locale, "stockStrategyCompatibility")}>
           <ul className="space-y-1 text-sm text-slate-300">
-            <li>Trend Following: {row.close_above_ma20 ? "Compatible" : "Not ideal"}</li>
-            <li>Top Exit Avoidance: {row.TopExitScore < 0.45 ? "Compatible" : "Not ideal"}</li>
-            <li>Mean Reversion: {row.rsi14 < 30 ? "Candidate" : "Neutral"}</li>
+            <li>{t(locale, "trendFollowing")}: {row.close_above_ma20 ? t(locale, "compatible") : t(locale, "notIdeal")}</li>
+            <li>{t(locale, "topExitAvoidance")}: {row.TopExitScore < 0.45 ? t(locale, "compatible") : t(locale, "notIdeal")}</li>
+            <li>{t(locale, "meanReversion")}: {row.rsi14 < 30 ? t(locale, "candidate") : t(locale, "neutral")}</li>
           </ul>
         </Card>
       </div>

@@ -33,10 +33,10 @@ export default async function DashboardPage() {
       </Card>
       <Card title={t(locale, "dashboardStrategySnapshot")}>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li>Total Return: {(data.strategySnapshot.totalReturn * 100).toFixed(2)}%</li>
-          <li>CAGR: {(data.strategySnapshot.cagr * 100).toFixed(2)}%</li>
-          <li>Sharpe: {data.strategySnapshot.sharpe.toFixed(2)}</li>
-          <li>Max Drawdown: {(data.strategySnapshot.maxDrawdown * 100).toFixed(2)}%</li>
+          <li>{t(locale, "totalReturn")}: {(data.strategySnapshot.totalReturn * 100).toFixed(2)}%</li>
+          <li>{t(locale, "cagr")}: {(data.strategySnapshot.cagr * 100).toFixed(2)}%</li>
+          <li>{t(locale, "sharpe")}: {data.strategySnapshot.sharpe.toFixed(2)}</li>
+          <li>{t(locale, "maxDrawdown")}: {(data.strategySnapshot.maxDrawdown * 100).toFixed(2)}%</li>
         </ul>
       </Card>
       <Card title={t(locale, "dashboardScreenedOpportunities")}>
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
         </ul>
       </Card>
       <Card title={t(locale, "dashboardWatchlistSummary")}>
-        <p className="text-sm text-slate-300">3 symbols tracked. 1 Warning, 0 Exit, 2 Normal.</p>
+        <p className="text-sm text-slate-300">{t(locale, "dashboardWatchlistText")}</p>
       </Card>
     </div>
   );
