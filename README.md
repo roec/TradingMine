@@ -1,0 +1,113 @@
+# TradingMine: AI-Assisted Stock Trading Workstation
+
+A full-stack trading research and simulation platform built with **Next.js App Router + TypeScript + Tailwind + Prisma/PostgreSQL + Redis**, featuring deterministic quantitative scoring, stock screening, strategy simulation, backtesting, and unified LLM explanations (**OpenAI/DeepSeek switchable**).
+
+## Architecture
+
+- `app/` Next.js pages and API routes
+- `core/` deterministic domain engines (indicators, signals, screening, strategies, backtest, AI adapters)
+- `lib/` data services, sample providers, Prisma/Redis clients
+- `store/` Zustand client state
+- `prisma/` schema and seed script
+- `tests/` Vitest unit tests
+
+## Features Implemented
+
+- Dashboard with market overview, risk signals, screened opportunities, strategy snapshots, AI insight feed
+- Stock detail page with stage A/B/C, TopExitScore, risk badge, chart, strategy compatibility, AI commentary
+- Deterministic top detection scoring (`Score_A/B/C`, `TopExitScore`, risk mapping)
+- Composable stock screener with condition parsing and ranking
+- Strategy builder engine + six built-in templates
+- Bar-based long-only multi-symbol backtest engine
+- Runnable strategy simulation endpoint
+- Unified LLM adapter for OpenAI and DeepSeek
+- Settings page for provider/model/base URL defaults
+- Mock + CSV provider abstractions for future live integration
+
+## Quick Start
+
+```bash
+npm install
+cp .env.example .env
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run dev
+```
+
+Open: `http://localhost:3000/dashboard`
+
+## Docker Deployment
+
+```bash
+docker compose up --build
+```
+
+Services:
+- App: `http://localhost:3000`
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+
+## LLM Switching (OpenAI / DeepSeek)
+
+Use environment variables:
+
+```env
+LLM_PROVIDER=openai
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-5
+
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_API_KEY=...
+DEEPSEEK_MODEL=deepseek-chat
+```
+
+Set `LLM_PROVIDER=deepseek` to switch providers. All AI endpoints call `core/ai/llm.ts`.
+
+## Backtests
+
+- API: `POST /api/backtests`
+- Inputs include strategy, fees, slippage, position sizing and max concurrent positions
+- Outputs include equity curve, daily pnl, trades, return/risk metrics
+
+## Screeners
+
+- API: `POST /api/screeners`
+- Pass JSON conditions array:
+
+```json
+{
+  "conditions": [
+    { "indicator": "HighPos", "op": ">", "value": 0.8 },
+    { "indicator": "TopExitScore", "op": "<", "value": 0.4 }
+  ]
+}
+```
+
+## AI Assistant Workflows
+
+- `POST /api/ai` with unified chat messages payload
+- Prompt builders are in `core/ai/prompts.ts`:
+  - stock analysis
+  - screener explanation
+  - backtest explanation
+  - strategy explanation
+
+## Determinism Statement
+
+All indicators, scores, signals, screening, and backtest computations are deterministic and reproducible. LLMs are used only for narrative interpretation.
+
+## Testing
+
+```bash
+npm run test
+```
+
+Covers:
+- indicator calculations
+- top detection determinism
+- screener filtering
+- strategy validation/evaluation
+- backtest calculations
+- LLM adapter failure behavior
