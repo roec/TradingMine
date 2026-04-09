@@ -21,7 +21,7 @@ export default function DashboardPage() {
             <div key={r.symbol} className="flex items-center justify-between">
               <span>{r.symbol}</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs">{r.TopExitScore.toFixed(2)}</span>
+                <span className="text-xs">{Number(r.TopExitScore).toFixed(2)}</span>
                 <Badge value={r.riskLevel} />
               </div>
             </div>
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           {data.screened.map((r) => (
             <div key={r.symbol} className="flex justify-between text-sm">
               <span>{r.symbol}</span>
-              <span>{r.TopExitScore.toFixed(2)}</span>
+              <span>{Number(r.TopExitScore).toFixed(2)}</span>
             </div>
           ))}
         </div>
