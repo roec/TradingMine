@@ -18,12 +18,12 @@ export default async function DashboardPage() {
           ))}
         </div>
       </Card>
-      <Card title="A-Share Emotion Overview">
+      <Card title={t(locale, "aShareEmotionOverview")}>
         <ul className="space-y-2 text-sm text-slate-300">
-          <li>Market Emotion Phase: {data.emotionPhase}</li>
-          <li>Today Limit-Up Count: {data.emotionMetrics.limitUpCount}</li>
-          <li>Today Failed Board Count: {data.emotionMetrics.failedBoardCount}</li>
-          <li>Strongest Consecutive Boards: {data.emotionMetrics.consecutiveBoardMax}</li>
+          <li>{t(locale, "marketEmotionPhase")}: {data.emotionPhase}</li>
+          <li>{t(locale, "todayLimitUpCount")}: {data.emotionMetrics.limitUpCount}</li>
+          <li>{t(locale, "todayFailedBoardCount")}: {data.emotionMetrics.failedBoardCount}</li>
+          <li>{t(locale, "strongestConsecutiveBoards")}: {data.emotionMetrics.consecutiveBoardMax}</li>
         </ul>
       </Card>
       <Card title={t(locale, "dashboardTopRiskSignals")}>
@@ -39,12 +39,12 @@ export default async function DashboardPage() {
           ))}
         </div>
       </Card>
-      <Card title="Speculation Heat Leaderboard">
+      <Card title={t(locale, "speculationHeatLeaderboard")}>
         <div className="space-y-2">
           {data.speculationHeatLeaderboard.map((r) => (
             <div key={r.symbol} className="flex justify-between text-sm">
               <span>{r.symbol}</span>
-              <span>Heat {r.turnoverSpike.toFixed(2)}</span>
+              <span>{t(locale, "heat")} {r.turnoverSpike.toFixed(2)}</span>
             </div>
           ))}
         </div>

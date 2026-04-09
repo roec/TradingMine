@@ -1,5 +1,7 @@
-import { Locale } from "@/lib/i18n";
+import { cookies } from "next/headers";
+import { Locale, resolveLocale } from "@/lib/i18n";
 
 export async function getCurrentLocale(): Promise<Locale> {
-  return "en";
+  const cookieStore = await cookies();
+  return resolveLocale(cookieStore.get("locale")?.value);
 }

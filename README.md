@@ -84,6 +84,16 @@ Chip distribution outputs are heuristic approximations derived from OHLCV/turnov
 
 ## Market Data Source
 
+
+### China Live Data Provider
+
+- When `MARKET=CN_A_SHARE`, the system fetches China A-share daily candles from Eastmoney and realtime snapshots from Tencent quote endpoint.
+- If live requests fail, it automatically falls back to local sample candles.
+
+### UI Language Switching
+
+- UI supports English/Chinese switching from the top-right language selector.
+- Locale is stored by cookie and applied to all pages through the App Router layout.
 - Default mode is `MARKET_DATA_MODE=live`, which fetches factual daily OHLCV data from Stooq (no API key required).
 - Set `MARKET_DATA_MODE=mock` to force offline demo data from `lib/sampleData.ts`.
 - Live fetch logic lives in `lib/market-data.ts` and falls back to mock data automatically when provider requests fail.

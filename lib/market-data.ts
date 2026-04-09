@@ -1,7 +1,8 @@
 import { Candle } from "@/core/types/domain";
 import { sampleCandles } from "@/lib/sampleData";
+import { fetchChinaDailyCandles } from "@/lib/china-market-data";
 
-const DEFAULT_SYMBOLS = ["AAPL", "MSFT", "NVDA"];
+const DEFAULT_SYMBOLS = ["600519", "000001", "300750"];
 
 function stooqSymbol(ticker: string) {
   return `${ticker.toLowerCase()}.us`;
@@ -30,7 +31,7 @@ function parseStooqCsv(ticker: string, csv: string): Candle[] {
     .filter((c) => Number.isFinite(c.close) && c.close > 0);
 }
 
-export async function fetchCandlesFromStooq(ticker: string): Promise<Candle[]> {
+async function fetchCandlesFromStooq(ticker: string): Promise<Candle[]> {
   const response = await fetch(`https://stooq.com/q/d/l/?s=${stooqSymbol(ticker)}&i=d`, {
     cache: "no-store"
   });
@@ -43,18 +44,19 @@ export async function fetchCandlesFromStooq(ticker: string): Promise<Candle[]> {
 
 export async function getCandles(ticker: string): Promise<Candle[]> {
   const mode = process.env.MARKET_DATA_MODE || "live";
+  const market = process.env.MARKET || "CN_A_SHARE";
   if (mode === "mock") {
-    return sampleCandles[ticker] || sampleCandles.AAPL;
+    return sampleCandles[ticker] || sampleCandles["600519"] || sampleCandles.AAPL;
   }
 
   try {
-    const candles = await fetchCandlesFromStooq(ticker);
+    const candles = market === "CN_A_SHARE" ? await fetchChinaDailyCandles(ticker) : await fetchCandlesFromStooq(ticker);
     if (candles.length > 30) return candles;
   } catch (error) {
     console.warn(`Failed to fetch live data for ${ticker}, fallback to mock data.`, error);
   }
 
-  return sampleCandles[ticker] || sampleCandles.AAPL;
+  return sampleCandles[ticker] || sampleCandles["600519"] || sampleCandles.AAPL;
 }
 
 export async function getUniverseCandles(symbols: string[] = DEFAULT_SYMBOLS) {
