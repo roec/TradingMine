@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Symbol {
+  id        String      @id @default(cuid())
+  ticker    String      @unique
+  name      String
+  exchange  String
+  sector    String
+  industry  String
+  candles   Candle[]
+  watchlistItems WatchlistItem[]
+  aiSummaries AISummary[]
+}
+
+model Candle {
+  id        String   @id @default(cuid())
+  symbolId  String
+  symbol    Symbol   @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+  timestamp DateTime
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+
+  @@index([symbolId, timestamp])
+}
+
+model Watchlist {
+  id    String @id @default(cuid())
+  name  String
+  items WatchlistItem[]
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  watchlistId String
+  symbolId    String
+  notes       String?
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  symbol      Symbol    @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+}
+
+model Strategy {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  configJson  Json
+  isTemplate  Boolean  @default(false)
+  backtests   BacktestRun[]
+  aiSummaries AISummary[]
+}
+
+model BacktestRun {
+  id              String   @id @default(cuid())
+  strategyId      String
+  universe        String
+  startDate       DateTime
+  endDate         DateTime
+  initialCapital  Float
+  configJson      Json
+  metricsJson     Json
+  equityCurveJson Json
+  tradesJson      Json
+  createdAt       DateTime @default(now())
+  strategy        Strategy @relation(fields: [strategyId], references: [id])
+  aiSummaries     AISummary[]
+}
+
+model Screener {
+  id          String @id @default(cuid())
+  name        String
+  filtersJson Json
+}
+
+model AISummary {
+  id            String      @id @default(cuid())
+  symbolId      String?
+  strategyId    String?
+  backtestRunId String?
+  provider      String
+  model         String
+  prompt        String
+  response      String
+  createdAt     DateTime @default(now())
+  symbol        Symbol?   @relation(fields: [symbolId], references: [id])
+  strategy      Strategy? @relation(fields: [strategyId], references: [id])
+  backtestRun   BacktestRun? @relation(fields: [backtestRunId], references: [id])
+}
