@@ -1,8 +1,12 @@
 import { Card } from "@/components/ui";
 import { strategyTemplates } from "@/core/strategies/engine";
 
-export default function StrategyDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function StrategyDetailPage({ params }: PageProps) {
+  const { id } = await params;
   const strategy = strategyTemplates[Number(id)] || strategyTemplates[0];
   return (
     <div className="space-y-4">

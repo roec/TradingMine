@@ -1,8 +1,12 @@
 import { Card } from "@/components/ui";
 import { getUniverseRows } from "@/lib/service";
 
-export default function ScreenerDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function ScreenerDetailPage({ params }: PageProps) {
+  const { id } = await params;
   const rows = getUniverseRows().sort((a, b) => b.ret20 - a.ret20);
   return (
     <div className="space-y-4">

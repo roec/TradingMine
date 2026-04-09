@@ -3,8 +3,12 @@ import { Badge, Card } from "@/components/ui";
 import { buildLatestRow } from "@/lib/analytics";
 import { sampleCandles } from "@/lib/sampleData";
 
-export default function StockDetailPage({ params }: { params: { ticker: string } }) {
-  const { ticker } = params;
+type PageProps = {
+  params: Promise<{ ticker: string }>;
+};
+
+export default async function StockDetailPage({ params }: PageProps) {
+  const { ticker } = await params;
   const candles = sampleCandles[ticker.toUpperCase()] || sampleCandles.AAPL;
   const row = buildLatestRow(candles);
 

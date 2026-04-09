@@ -1,8 +1,12 @@
 import { Card } from "@/components/ui";
 import { getDashboardData } from "@/lib/service";
 
-export default function BacktestDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function BacktestDetailPage({ params }: PageProps) {
+  const { id } = await params;
   const metrics = getDashboardData().strategySnapshot;
   return (
     <div className="space-y-4">
