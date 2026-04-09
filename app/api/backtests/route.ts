@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { runBacktest } from "@/core/backtest/engine";
 import { strategyTemplates } from "@/core/strategies/engine";
-import { sampleCandles } from "@/lib/sampleData";
 import { buildLatestRow } from "@/lib/analytics";
+import { getUniverseCandles } from "@/lib/market-data";
 
 export async function POST() {
+  const candlesBySymbol = await getUniverseCandles(["AAPL", "MSFT", "NVDA"]);
   const rowsBySymbol = Object.fromEntries(
-    Object.entries(sampleCandles).map(([s, candles]) => [s, candles.map((_, i) => buildLatestRow(candles.slice(0, i + 1)))])
+    Object.entries(candlesBySymbol).map(([s, candles]) => [s, candles.map((_, i) => buildLatestRow(candles.slice(0, i + 1)))])
   );
   const result = runBacktest({
-    candlesBySymbol: sampleCandles,
+    candlesBySymbol,
     rowsBySymbol,
     strategy: strategyTemplates[0],
     initialCapital: 100000,

@@ -10,7 +10,7 @@ type PageProps = {
 export default async function ScreenerDetailPage({ params }: PageProps) {
   const locale = await getCurrentLocale();
   const { id } = await params;
-  const rows = getUniverseRows().sort((a, b) => b.ret20 - a.ret20);
+  const rows = (await getUniverseRows()).sort((a, b) => b.ret20 - a.ret20);
   return (
     <div className="space-y-4">
       <Card title={`${t(locale, "screenersRun")}: ${id}`}>

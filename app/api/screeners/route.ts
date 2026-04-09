@@ -4,7 +4,7 @@ import { runScreener } from "@/core/screening/engine";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const rows = getUniverseRows();
+  const rows = await getUniverseRows();
   const results = runScreener(rows, body.conditions || []);
   return NextResponse.json({ results });
 }

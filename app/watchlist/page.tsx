@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 
 export default async function WatchlistPage() {
   const locale = await getCurrentLocale();
-  const rows = getUniverseRows();
+  const rows = await getUniverseRows();
   return (
     <Card title={t(locale, "watchlistTitle")}>
       {rows.map((r) => (

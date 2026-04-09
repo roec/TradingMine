@@ -10,7 +10,7 @@ type PageProps = {
 export default async function BacktestDetailPage({ params }: PageProps) {
   const locale = await getCurrentLocale();
   const { id } = await params;
-  const metrics = getDashboardData().strategySnapshot;
+  const metrics = (await getDashboardData()).strategySnapshot;
   return (
     <div className="space-y-4">
       <Card title={`Backtest ${id}`}>

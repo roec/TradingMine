@@ -1,7 +1,7 @@
 import { StockChart } from "@/components/stock-chart";
 import { Badge, Card } from "@/components/ui";
 import { buildLatestRow } from "@/lib/analytics";
-import { sampleCandles } from "@/lib/sampleData";
+import { getCandles } from "@/lib/market-data";
 import { t, tf } from "@/lib/i18n";
 import { getCurrentLocale } from "@/lib/locale";
 
@@ -12,7 +12,7 @@ type PageProps = {
 export default async function StockDetailPage({ params }: PageProps) {
   const locale = await getCurrentLocale();
   const { ticker } = await params;
-  const candles = sampleCandles[ticker.toUpperCase()] || sampleCandles.AAPL;
+  const candles = await getCandles(ticker.toUpperCase());
   const row = buildLatestRow(candles);
 
   return (

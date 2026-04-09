@@ -6,7 +6,7 @@ import { t } from "@/lib/i18n";
 
 export default async function ScreenersPage() {
   const locale = await getCurrentLocale();
-  const rows = getUniverseRows();
+  const rows = await getUniverseRows();
   return (
     <Card title={t(locale, "screenersSaved")}>
       <div className="mb-4 text-sm text-slate-300">{t(locale, "screenersDescription")}</div>

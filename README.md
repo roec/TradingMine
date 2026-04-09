@@ -65,6 +65,12 @@ DEEPSEEK_MODEL=deepseek-chat
 
 Set `LLM_PROVIDER=deepseek` to switch providers. All AI endpoints call `core/ai/llm.ts`.
 
+## Market Data Source
+
+- Default mode is `MARKET_DATA_MODE=live`, which fetches factual daily OHLCV data from Stooq (no API key required).
+- Set `MARKET_DATA_MODE=mock` to force offline demo data from `lib/sampleData.ts`.
+- Live fetch logic lives in `lib/market-data.ts` and falls back to mock data automatically when provider requests fail.
+
 ## Backtests
 
 - API: `POST /api/backtests`

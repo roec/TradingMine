@@ -1,15 +1,20 @@
 import { runScreener } from "@/core/screening/engine";
 import { strategyTemplates } from "@/core/strategies/engine";
-import { sampleCandles, sampleSymbols } from "@/lib/sampleData";
+import { sampleSymbols } from "@/lib/sampleData";
 import { buildLatestRow } from "@/lib/analytics";
 import { runBacktest } from "@/core/backtest/engine";
+import { getUniverseCandles } from "@/lib/market-data";
 
-export function getUniverseRows() {
-  return sampleSymbols.map((s) => ({ symbol: s.ticker, ...buildLatestRow(sampleCandles[s.ticker]) }));
+export async function getUniverseRows() {
+  const symbols = sampleSymbols.map((s) => s.ticker);
+  const candlesBySymbol = await getUniverseCandles(symbols);
+  return symbols.map((symbol) => ({ symbol, ...buildLatestRow(candlesBySymbol[symbol]) }));
 }
 
-export function getDashboardData() {
-  const rows = getUniverseRows();
+export async function getDashboardData() {
+  const symbols = sampleSymbols.map((s) => s.ticker);
+  const candlesBySymbol = await getUniverseCandles(symbols);
+  const rows = symbols.map((symbol) => ({ symbol, ...buildLatestRow(candlesBySymbol[symbol]) }));
   const risky = [...rows].sort((a, b) => b.TopExitScore - a.TopExitScore);
   const opportunities = runScreener(rows, [
     { indicator: "HighPos", op: ">", value: 0.8 },
@@ -19,9 +24,9 @@ export function getDashboardData() {
   ]);
 
   const backtest = runBacktest({
-    candlesBySymbol: sampleCandles,
+    candlesBySymbol,
     rowsBySymbol: Object.fromEntries(
-      Object.entries(sampleCandles).map(([symbol, candles]) => [
+      Object.entries(candlesBySymbol).map(([symbol, candles]) => [
         symbol,
         candles.map((_, i) => buildLatestRow(candles.slice(0, i + 1)))
       ])
@@ -41,7 +46,7 @@ export function getDashboardData() {
     recentInsights: [
       "Distribution pressure is rising in high-beta names.",
       "Momentum signals are strongest in semiconductors.",
-      "TopExitScore cluster below 0.4 suggests trend continuation." 
+      "TopExitScore cluster below 0.4 suggests trend continuation."
     ]
   };
 }

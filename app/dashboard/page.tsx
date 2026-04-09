@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 
 export default async function DashboardPage() {
   const locale = await getCurrentLocale();
-  const data = getDashboardData();
+  const data = await getDashboardData();
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <Card title={t(locale, "dashboardMarketOverview")}>
