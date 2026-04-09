@@ -1,5 +1,5 @@
 export function stockAnalysisPrompt(payload: unknown) {
-  return `Analyze whether this stock is in a top formation or distribution phase. Use the supplied OHLCV summary, stage scores, indicators, and price-volume relationship. Explain the likely smart money behavior, risk level, invalidation conditions, and suggested action. Do not invent numbers.\n\nData:\n${JSON.stringify(
+  return `Analyze this China A-share stock setup using deterministic inputs only. Explain whether it is in strong trend, speculative expansion, distribution, or breakdown. Evaluate limit-up quality, failed board risk, re-seal strength, MA support/failure, MACD/KDJ confirmation, chip pressure, market emotion-cycle support, invalidation conditions, and suggested action. Do not invent numbers.\n\nData:\n${JSON.stringify(
     payload,
     null,
     2
@@ -7,7 +7,7 @@ export function stockAnalysisPrompt(payload: unknown) {
 }
 
 export function screenerExplanationPrompt(payload: unknown) {
-  return `Explain why these symbols passed the screener. Focus on technical structure, signal alignment, and risk considerations.\n\nData:\n${JSON.stringify(
+  return `Explain why these symbols passed the China-style screener. Include board type, limit-up/failed-board behavior, turnover profile, MA/MACD/KDJ alignment, chip pressure and emotion phase context.\n\nData:\n${JSON.stringify(
     payload,
     null,
     2
@@ -15,7 +15,7 @@ export function screenerExplanationPrompt(payload: unknown) {
 }
 
 export function backtestExplanationPrompt(payload: unknown) {
-  return `Explain this backtest result using the provided performance metrics, drawdown profile, and trade summary. Highlight strengths, weaknesses, overfitting risks, and practical trading considerations.\n\nData:\n${JSON.stringify(
+  return `Explain this A-share backtest with focus on T+1 constraints, board price limits, fill difficulty at limit-up/limit-down, and regime sensitivity (expansion/rotation/distribution). Highlight strengths, weaknesses, and practical risk controls.\n\nData:\n${JSON.stringify(
     payload,
     null,
     2
@@ -23,7 +23,15 @@ export function backtestExplanationPrompt(payload: unknown) {
 }
 
 export function strategyExplanationPrompt(payload: unknown) {
-  return `Explain this strategy in plain English. Describe how it enters, exits, manages risk, and in what market regimes it may perform well or poorly.\n\nData:\n${JSON.stringify(
+  return `Explain this China A-share strategy in plain English, including entry/exit logic, risk model, and expected behavior across emotion phases. Mention when to avoid execution (failed board risk, high chip pressure, top distribution warning).\n\nData:\n${JSON.stringify(
+    payload,
+    null,
+    2
+  )}`;
+}
+
+export function riskExplanationPrompt(payload: unknown) {
+  return `Provide a focused risk explanation for this China A-share setup: failed board risk, chip pressure risk, stage B/C top-distribution risk, and weak market emotion risk. Do not invent numbers.\n\nData:\n${JSON.stringify(
     payload,
     null,
     2

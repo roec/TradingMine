@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getCurrentLocale();
 
   return (
-    <html lang={locale === "zh" ? "zh-CN" : "en"}>
+    <html lang="en">
       <body>
         <AppLayout locale={locale}>{children}</AppLayout>
       </body>

@@ -1,4 +1,5 @@
 import { ScreenerCondition, StrategyConfig } from "@/core/types/domain";
+import { chinaStrategyTemplates } from "@/core/china/strategyTemplates";
 
 export function evaluateConditions(row: Record<string, number | boolean | string>, conditions: ScreenerCondition[]): boolean {
   return conditions.every((c) => {
@@ -33,7 +34,7 @@ export function validateStrategy(config: StrategyConfig) {
   return true;
 }
 
-export const strategyTemplates: StrategyConfig[] = [
+const globalStrategyTemplates: StrategyConfig[] = [
   {
     name: "Trend Following",
     universe: "all_symbols",
@@ -90,3 +91,6 @@ export const strategyTemplates: StrategyConfig[] = [
     risk: { stopLossPct: 0.08, takeProfitPct: 0.22, maxHoldingDays: 20, positionSizePct: 0.1 }
   }
 ];
+
+
+export const strategyTemplates: StrategyConfig[] = [...globalStrategyTemplates, ...chinaStrategyTemplates];

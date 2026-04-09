@@ -4,6 +4,7 @@ import { sampleSymbols } from "@/lib/sampleData";
 import { buildLatestRow } from "@/lib/analytics";
 import { runBacktest } from "@/core/backtest/engine";
 import { getUniverseCandles } from "@/lib/market-data";
+import { classifyEmotionPhase } from "@/core/china/emotionCycle";
 
 export async function getUniverseRows() {
   const symbols = sampleSymbols.map((s) => s.ticker);
@@ -23,6 +24,18 @@ export async function getDashboardData() {
     { indicator: "close_above_ma60", op: "=", value: true }
   ]);
 
+  const emotionMetrics = {
+    limitUpCount: rows.filter((r) => r.limitUpToday).length,
+    limitDownCount: rows.filter((r) => r.limitDownToday).length,
+    failedBoardCount: rows.filter((r) => r.failedBoardToday).length,
+    reSealRate: rows.length ? rows.filter((r) => r.reSealToday).length / rows.length : 0,
+    consecutiveBoardMax: Math.max(...rows.map((r) => r.consecutiveLimitUpCount), 0),
+    breadthRatio: rows.length ? rows.filter((r) => r.ret20 > 0).length / rows.length : 0,
+    heatScore: rows.length ? rows.reduce((s, r) => s + r.turnoverSpike, 0) / rows.length / 2 : 0,
+    panicScore: rows.length ? rows.filter((r) => r.limitDownToday || r.TopExitScore > 0.65).length / rows.length : 0
+  };
+  const emotionPhase = classifyEmotionPhase(emotionMetrics);
+
   const backtest = runBacktest({
     candlesBySymbol,
     rowsBySymbol: Object.fromEntries(
@@ -35,7 +48,13 @@ export async function getDashboardData() {
     initialCapital: 100000,
     feeBps: 5,
     slippageBps: 3,
-    maxConcurrentPositions: 3
+    maxConcurrentPositions: 3,
+    marketConfig: {
+      market: "CN_A_SHARE",
+      enforceTPlusOne: true,
+      fillMode: "realistic",
+      allowSellCashReuseSameDay: true
+    }
   });
 
   return {
@@ -43,6 +62,9 @@ export async function getDashboardData() {
     topRiskSignals: risky.slice(0, 5),
     screened: opportunities,
     strategySnapshot: backtest.metrics,
+    emotionPhase,
+    emotionMetrics,
+    speculationHeatLeaderboard: [...rows].sort((a, b) => b.turnoverSpike - a.turnoverSpike).slice(0, 5),
     recentInsights: [
       "Distribution pressure is rising in high-beta names.",
       "Momentum signals are strongest in semiconductors.",

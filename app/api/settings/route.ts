@@ -6,6 +6,14 @@ export async function GET() {
     provider: llmConfig.provider,
     openaiBaseUrl: llmConfig.openai.baseUrl,
     deepseekBaseUrl: llmConfig.deepseek.baseUrl,
-    backtestDefaults: { feeBps: 5, slippageBps: 3, initialCapital: 100000 }
+    backtestDefaults: { feeBps: 5, slippageBps: 3, initialCapital: 100000 },
+    marketConfig: {
+      market: "CN_A_SHARE",
+      enforceTPlusOne: true,
+      fillMode: "realistic",
+      strictSessionHandling: true,
+      emotionThresholdProfile: "default_cn_v1",
+      chipApproximation: true
+    }
   });
 }

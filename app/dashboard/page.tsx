@@ -18,6 +18,14 @@ export default async function DashboardPage() {
           ))}
         </div>
       </Card>
+      <Card title="A-Share Emotion Overview">
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li>Market Emotion Phase: {data.emotionPhase}</li>
+          <li>Today Limit-Up Count: {data.emotionMetrics.limitUpCount}</li>
+          <li>Today Failed Board Count: {data.emotionMetrics.failedBoardCount}</li>
+          <li>Strongest Consecutive Boards: {data.emotionMetrics.consecutiveBoardMax}</li>
+        </ul>
+      </Card>
       <Card title={t(locale, "dashboardTopRiskSignals")}>
         <div className="space-y-2">
           {data.topRiskSignals.map((r) => (
@@ -27,6 +35,16 @@ export default async function DashboardPage() {
                 <span className="text-xs">{r.TopExitScore.toFixed(2)}</span>
                 <Badge value={r.riskLevel} />
               </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Card title="Speculation Heat Leaderboard">
+        <div className="space-y-2">
+          {data.speculationHeatLeaderboard.map((r) => (
+            <div key={r.symbol} className="flex justify-between text-sm">
+              <span>{r.symbol}</span>
+              <span>Heat {r.turnoverSpike.toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -48,16 +66,6 @@ export default async function DashboardPage() {
             </div>
           ))}
         </div>
-      </Card>
-      <Card title={t(locale, "dashboardRecentAiInsights")}>
-        <ul className="list-disc space-y-2 pl-4 text-sm text-slate-300">
-          {data.recentInsights.map((i) => (
-            <li key={i}>{i}</li>
-          ))}
-        </ul>
-      </Card>
-      <Card title={t(locale, "dashboardWatchlistSummary")}>
-        <p className="text-sm text-slate-300">{t(locale, "dashboardWatchlistText")}</p>
       </Card>
     </div>
   );

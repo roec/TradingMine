@@ -65,6 +65,23 @@ DEEPSEEK_MODEL=deepseek-chat
 
 Set `LLM_PROVIDER=deepseek` to switch providers. All AI endpoints call `core/ai/llm.ts`.
 
+## China A-Share Enhanced Modules
+
+This system now includes dedicated China A-share logic in deterministic domain modules:
+
+- `core/china/marketRules.ts`: session states, auction windows, cancel constraints
+- `core/china/boardRules.ts`: board limits (SSE/SZSE/ChiNext/STAR/BSE) and no-limit IPO windows
+- `core/china/limitSignals.ts`: limit-up/down, failed-board, re-seal, one-word-board, consecutive boards, limit board score
+- `core/china/technical.ts`: KDJ, Bollinger Bands, MACD state signals
+- `core/china/chipDistribution.ts`: heuristic chip distribution approximation
+- `core/china/emotionCycle.ts`: deterministic market emotion phase classifier
+- `core/china/screeners.ts`: China-style prebuilt screener templates
+- `core/china/strategyTemplates.ts`: China-specific strategy templates
+
+### Chip Distribution Note
+
+Chip distribution outputs are heuristic approximations derived from OHLCV/turnover and are **not** broker-level real chip ledgers unless specialized data feeds are integrated.
+
 ## Market Data Source
 
 - Default mode is `MARKET_DATA_MODE=live`, which fetches factual daily OHLCV data from Stooq (no API key required).

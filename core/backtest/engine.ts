@@ -9,48 +9,87 @@ export type EngineInput = {
   feeBps: number;
   slippageBps: number;
   maxConcurrentPositions: number;
+  marketConfig?: {
+    market?: "CN_A_SHARE" | "GLOBAL";
+    enforceTPlusOne?: boolean;
+    fillMode?: "optimistic" | "realistic" | "strict";
+    allowSellCashReuseSameDay?: boolean;
+  };
 };
 
-type Position = Trade & { holdingDays: number };
+type Position = Trade & { holdingDays: number; entryIndex: number };
 
 export function runBacktest(input: EngineInput): BacktestResult {
+  const marketConfig = {
+    market: input.marketConfig?.market ?? "CN_A_SHARE",
+    enforceTPlusOne: input.marketConfig?.enforceTPlusOne ?? true,
+    fillMode: input.marketConfig?.fillMode ?? "realistic",
+    allowSellCashReuseSameDay: input.marketConfig?.allowSellCashReuseSameDay ?? true
+  };
+
   const symbols = Object.keys(input.candlesBySymbol);
   const dateCount = Math.min(...symbols.map((s) => input.candlesBySymbol[s].length));
 
   let cash = input.initialCapital;
+  const pendingCashByDay = new Map<number, number>();
   const positions = new Map<string, Position>();
   const trades: Trade[] = [];
   const equityCurve: Array<{ date: string; equity: number; drawdown: number }> = [];
 
   for (let i = 0; i < dateCount; i += 1) {
+    if (marketConfig.allowSellCashReuseSameDay) {
+      cash += pendingCashByDay.get(i) || 0;
+    } else if (i > 0) {
+      cash += pendingCashByDay.get(i - 1) || 0;
+    }
+
     for (const symbol of symbols) {
       const candle = input.candlesBySymbol[symbol][i];
       const row = input.rowsBySymbol[symbol][i];
       const pos = positions.get(symbol);
+      const limitUpToday = Boolean(row.limitUpToday);
+      const limitDownToday = Boolean(row.limitDownToday);
+
       if (pos) {
         pos.holdingDays += 1;
         const stopPrice = pos.entryPrice * (1 - input.strategy.risk.stopLossPct);
         const takePrice = pos.entryPrice * (1 + input.strategy.risk.takeProfitPct);
+        const blockedByTPlusOne = marketConfig.market === "CN_A_SHARE" && marketConfig.enforceTPlusOne && i === pos.entryIndex;
         const shouldExit =
-          evaluateConditions(row, input.strategy.exit) ||
-          candle.close <= stopPrice ||
-          candle.close >= takePrice ||
-          pos.holdingDays >= input.strategy.risk.maxHoldingDays;
+          !blockedByTPlusOne &&
+          (evaluateConditions(row, input.strategy.exit) ||
+            candle.close <= stopPrice ||
+            candle.close >= takePrice ||
+            pos.holdingDays >= input.strategy.risk.maxHoldingDays);
+
         if (shouldExit) {
+          if (limitDownToday && marketConfig.fillMode !== "optimistic") {
+            continue;
+          }
           const fill = withSlippage(candle.close, input.slippageBps, "sell");
           const fee = (fill * pos.quantity * input.feeBps) / 10000;
-          cash += fill * pos.quantity - fee;
+          const proceeds = fill * pos.quantity - fee;
+          if (marketConfig.allowSellCashReuseSameDay) {
+            cash += proceeds;
+          } else {
+            pendingCashByDay.set(i, (pendingCashByDay.get(i) || 0) + proceeds);
+          }
           pos.exitDate = candle.timestamp;
           pos.exitPrice = fill;
           pos.pnl = (fill - pos.entryPrice) * pos.quantity - fee;
-          pos.reason = "rule_or_risk_exit";
+          pos.reason = limitDownToday ? "limit_down_trapped_risk_exit" : "rule_or_risk_exit";
           trades.push({ ...pos });
           positions.delete(symbol);
         }
       } else if (positions.size < input.maxConcurrentPositions && evaluateConditions(row, input.strategy.entry)) {
+        if (limitUpToday && marketConfig.fillMode !== "optimistic") {
+          if (marketConfig.fillMode === "strict") continue;
+          if ((i + symbol.charCodeAt(0)) % 2 === 0) continue;
+        }
+
         const capitalPerTrade = cash * input.strategy.risk.positionSizePct;
         const fill = withSlippage(candle.close, input.slippageBps, "buy");
-        const quantity = Math.floor(capitalPerTrade / fill);
+        const quantity = Math.floor(capitalPerTrade / fill / 100) * 100;
         if (quantity > 0) {
           const fee = (fill * quantity * input.feeBps) / 10000;
           cash -= fill * quantity + fee;
@@ -59,7 +98,8 @@ export function runBacktest(input: EngineInput): BacktestResult {
             entryDate: candle.timestamp,
             entryPrice: fill,
             quantity,
-            holdingDays: 0
+            holdingDays: 0,
+            entryIndex: i
           });
         }
       }
