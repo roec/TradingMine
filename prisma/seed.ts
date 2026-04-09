@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { sampleCandles, sampleSymbols } from "@/lib/sampleData";
-import { strategyTemplates } from "@/core/strategies/engine";
+import { sampleCandles, sampleSymbols } from "../lib/sampleData";
+import { strategyTemplates } from "../core/strategies/engine";
 
 const prisma = new PrismaClient();
 
