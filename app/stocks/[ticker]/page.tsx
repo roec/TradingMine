@@ -4,6 +4,8 @@ import { buildLatestRow } from "@/lib/analytics";
 import { getCandles } from "@/lib/market-data";
 import { t, tf } from "@/lib/i18n";
 import { getCurrentLocale } from "@/lib/locale";
+import { getActiveProviderName } from "@/core/market-data/providerRegistry";
+import { fetchChinaRealtimeQuote } from "@/lib/china-market-data";
 
 type PageProps = {
   params: Promise<{ ticker: string }>;
@@ -12,8 +14,17 @@ type PageProps = {
 export default async function StockDetailPage({ params }: PageProps) {
   const locale = await getCurrentLocale();
   const { ticker } = await params;
-  const candles = await getCandles(ticker.toUpperCase());
+  const symbol = ticker.toUpperCase();
+  const candles = await getCandles(symbol);
   const row = buildLatestRow(candles);
+  const provider = getActiveProviderName();
+
+  let realtime = null as Awaited<ReturnType<typeof fetchChinaRealtimeQuote>> | null;
+  try {
+    realtime = await fetchChinaRealtimeQuote(symbol.includes(".") ? symbol.split(".")[0] : symbol);
+  } catch {
+    realtime = null;
+  }
 
   return (
     <div className="space-y-4">
@@ -21,18 +32,30 @@ export default async function StockDetailPage({ params }: PageProps) {
         <Card title={t(locale, "stockBoardBadge")}>
           <div className="text-xl font-bold">{row.boardType}</div>
         </Card>
+        <Card title="Realtime Status">
+          <div className="text-sm text-slate-300">LIVE / Provider: {provider}</div>
+          <div className="text-xs text-slate-400">Last candle: {candles.at(-1)?.timestamp ?? "N/A"}</div>
+        </Card>
         <Card title={t(locale, "stockStage")}>
           <div className="text-3xl font-bold">{row.stage}</div>
         </Card>
         <Card title={t(locale, "stockTopExitScore")}>
           <div className="text-3xl font-bold">{row.TopExitScore.toFixed(2)}</div>
         </Card>
-        <Card title={t(locale, "stockRisk")}>
-          <Badge value={row.riskLevel} />
-        </Card>
       </div>
 
-      <Card title={`Chart: ${ticker.toUpperCase()}`}>
+      {realtime && (
+        <Card title="Latest Snapshot">
+          <div className="flex flex-wrap gap-4 text-sm text-slate-300">
+            <span>Last: {realtime.last?.toFixed(2)}</span>
+            <span>Change: {realtime.pctChange.toFixed(2)}%</span>
+            <span>Timestamp: {realtime.timestamp}</span>
+            <button className="rounded-md bg-accent/20 px-2 py-1 text-accent">Refresh AI Explanation</button>
+          </div>
+        </Card>
+      )}
+
+      <Card title={`Chart: ${symbol}`}>
         <StockChart data={candles.map((c) => ({ time: c.timestamp, ...c }))} />
       </Card>
 

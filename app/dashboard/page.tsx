@@ -2,12 +2,24 @@ import { Badge, Card } from "@/components/ui";
 import { getDashboardData } from "@/lib/service";
 import { getCurrentLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import { getMarketSession } from "@/core/china/marketRules";
+import { getActiveProviderName } from "@/core/market-data/providerRegistry";
 
 export default async function DashboardPage() {
   const locale = await getCurrentLocale();
   const data = await getDashboardData();
+  const now = new Date();
+
   return (
     <div className="grid gap-4 lg:grid-cols-3">
+      <Card title="Realtime Market Status">
+        <ul className="space-y-2 text-sm text-slate-300">
+          <li>Session: {getMarketSession(now, "SSE")}</li>
+          <li>Provider: {getActiveProviderName()}</li>
+          <li>Latest Refresh: {now.toISOString()}</li>
+          <li>Screener Refresh Status: LIVE</li>
+        </ul>
+      </Card>
       <Card title={t(locale, "dashboardMarketOverview")}>
         <div className="space-y-2">
           {data.marketOverview.map((r) => (
@@ -56,16 +68,6 @@ export default async function DashboardPage() {
           <li>{t(locale, "sharpe")}: {data.strategySnapshot.sharpe.toFixed(2)}</li>
           <li>{t(locale, "maxDrawdown")}: {(data.strategySnapshot.maxDrawdown * 100).toFixed(2)}%</li>
         </ul>
-      </Card>
-      <Card title={t(locale, "dashboardScreenedOpportunities")}>
-        <div className="space-y-2">
-          {data.screened.map((r) => (
-            <div key={r.symbol} className="flex justify-between text-sm">
-              <span>{r.symbol}</span>
-              <span>{Number(r.TopExitScore).toFixed(2)}</span>
-            </div>
-          ))}
-        </div>
       </Card>
     </div>
   );

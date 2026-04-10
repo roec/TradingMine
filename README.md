@@ -85,6 +85,35 @@ Chip distribution outputs are heuristic approximations derived from OHLCV/turnov
 ## Market Data Source
 
 
+## Real-time China Stock Data Integration
+
+### Why Tushare is default
+- Tushare is configured as the first production-ready minute-candle provider (`rt_min`) for China A-share realtime ingestion.
+- It supports 1/5/15/30/60 minute frequencies and batched symbols in one request.
+
+### RQData upgrade path
+- Provider abstraction is implemented in `core/market-data/types.ts` and `core/market-data/providerRegistry.ts`.
+- Switch provider by setting `MARKET_DATA_PROVIDER=rqdata` and enabling `RQDATA_ENABLED=true` once credentials/gateway are available.
+
+### Redis caching
+- Realtime candles cache key: `realtime:candles:{timeframe}:{symbol}`
+- Realtime snapshots cache key: `realtime:snapshot:{symbol}`
+- Market session state key: `market:session:state`
+
+### Polling and jobs
+- Jobs are defined in `jobs/realtimeJobs.ts`
+- Trigger immediate polling with `POST /api/admin/realtime/poll-now`
+- China market session helper uses auction/continuous/lunch/close windows in `core/china/marketRules.ts`
+
+### Freshness states
+- LIVE / DELAYED / STALE / UNAVAILABLE are computed by `core/market-data/marketDataService.ts` and exposed via market APIs.
+
+### Run realtime locally
+1. Configure `.env` with `TUSHARE_TOKEN`, `MARKET_DATA_PROVIDER=tushare`, `REALTIME_ENABLED=true`
+2. Start services: `docker compose up --build`
+3. Trigger polling manually: `POST /api/admin/realtime/poll-now`
+
+
 ### China Live Data Provider
 
 - When `MARKET=CN_A_SHARE`, the system fetches China A-share daily candles from Eastmoney and realtime snapshots from Tencent quote endpoint.
